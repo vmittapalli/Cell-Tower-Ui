@@ -1,0 +1,45 @@
+import { Injectable } from '@angular/core';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import {MyhttpService} from './myhttp.service';
+
+@Injectable()
+export class AuthenticationService {
+  constructor(private http: Http) { }
+
+  login(username: string, password: string) {
+    const url = 'http://localhost:8080/ctsweb';
+
+    const login = url + '/cts/SecurityService/login';
+    const headerslist = new Headers();
+    headerslist.append( 'Content-Type', 'application/json');
+    headerslist.append('userEmail', username);
+    headerslist.append('userPassword', password);
+  
+
+    const headers =  new Headers({
+      'Content-Type': 'application/json',
+      'userEmail': 'john2@at.com',
+      'userPassword': 'test'
+     // 'Authorization': 'Bearer ' + IMP.InitData.Token // todo:need to uncomment after functionality complete
+  });
+  const options = new RequestOptions({ headers: headers });
+      return this.http.post(login, '', options)
+    .map((response: Response) => {
+      // tslint:disable-next-line:no-debugger
+      debugger;
+        // login successful if there's a jwt token in the response
+        const user = response.json();
+        if (user && user.userToken) {
+            // store user details and jwt token in local storage to keep user logged in between page refreshes
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        }
+    });
+  }
+
+  logout() {
+    // remove user from local storage to log user out
+    localStorage.removeItem('currentUser');
+  }
+}
